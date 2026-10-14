@@ -333,7 +333,6 @@ SGLANG_ARGS=(
   --sglang-tool-call-parser qwen3_coder
   --sglang-log-level warning
   --sglang-router-port "${SGLANG_ROUTER_PORT}"
-  --router-policy consistent_hashing
 )
 
 MISC_ARGS=(
@@ -388,11 +387,11 @@ export NO_PROXY="${no_proxy}"
 
 cd "${SLIME_ROOT}"
 mkdir -p "${RAY_TEMP_DIR}"
-ray start --head --block --port="${RAY_PORT}" --node-ip-address="${RAY_NODE_IP_ADDRESS}" \
+ray start --head --port="${RAY_PORT}" --node-ip-address="${RAY_NODE_IP_ADDRESS}" \
   --num-gpus "${RAY_NUM_GPUS_PER_NODE}" --disable-usage-stats \
   --dashboard-host="${RAY_DASHBOARD_HOST}" --dashboard-port="${RAY_DASHBOARD_PORT}" \
-  --temp-dir="${RAY_TEMP_DIR}" &
-sleep 10
+  --temp-dir="${RAY_TEMP_DIR}"
+# sleep 10
 
 if [[ -n "${HOSTFILE}" && -f "${HOSTFILE}" ]]; then
   : "${RAY_SSH_USER:?RAY_SSH_USER is required when HOSTFILE is set}"

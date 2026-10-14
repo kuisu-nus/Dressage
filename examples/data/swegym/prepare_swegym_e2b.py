@@ -170,6 +170,30 @@ def build_template(args: argparse.Namespace) -> int:
     return 0
 
 
+def _setup_cube_sidecar_if_configured() -> None:
+    """Route e2b sandbox connections through the cube dev sidecar proxy.
+
+    The cube sandbox data plane is reached via ``CUBE_REMOTE_PROXY_BASE`` (an
+    openresty proxy), not via the default ``https://{port}-{id}.cube.app`` URL
+    the e2b SDK computes. ``dev_sidecar.setup_dev_sidecar()`` monkey-patches the
+    e2b SDK's sandbox-URL builders so connections go through a local sidecar
+    that forwards to ``CUBE_REMOTE_PROXY_BASE``. We only activate it when that
+    variable is set, so non-cube e2b setups are left untouched.
+    """
+    if not os.environ.get("CUBE_REMOTE_PROXY_BASE"):
+        return
+    try:
+        import dev_sidecar
+    except ModuleNotFoundError:
+        print(
+            "WARNING: CUBE_REMOTE_PROXY_BASE is set but dev_sidecar.py is not "
+            "importable on sys.path; sandbox connections may fail to route.",
+            file=sys.stderr,
+        )
+        return
+    dev_sidecar.setup_dev_sidecar()
+
+
 async def _smoke_template(args: argparse.Namespace) -> None:
     try:
         from e2b import AsyncSandbox
@@ -178,21 +202,34 @@ async def _smoke_template(args: argparse.Namespace) -> None:
             "e2b is required; install the repository before testing templates"
         ) from exc
 
+    # Route sandbox connections through the cube data-plane proxy when a cube
+    # remote proxy base is configured; otherwise the e2b SDK would try to reach
+    # https://{port}-{id}.cube.app and fail to resolve/connect.
+    _setup_cube_sidecar_if_configured()
+
     sandbox = await AsyncSandbox.create(
         template=args.template_name,
         timeout=args.sandbox_timeout,
     )
     try:
         print(f"blackbox_endpoint={sandbox.get_host(args.blackbox_port)}")
+        # `|| true` keeps a non-running Blackbox Server from aborting the smoke
+        # run; we report the absence of a health response instead.
         result = await sandbox.commands.run(
-            f"curl -sf http://127.0.0.1:{args.blackbox_port}/health",
+            f"curl -sf http://127.0.0.1:{args.blackbox_port}/health || true",
             timeout=args.command_timeout,
         )
         output = str(result.stdout or "").strip()
         if output:
             print(output)
+        else:
+            print(
+                f"WARNING: no response on :{args.blackbox_port}/health "
+                "(Blackbox Server may not be running in this template)",
+                file=sys.stderr,
+            )
     finally:
-        sandbox.kill()
+        await sandbox.kill()
 
 
 def smoke_template(args: argparse.Namespace) -> int:

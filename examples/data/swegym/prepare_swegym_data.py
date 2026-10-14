@@ -529,6 +529,8 @@ def output_row(
     sandbox_image = docker_image
     if sandbox_image_map is not None:
         try:
+            if docker_image not in sandbox_image_map:
+                return None
             sandbox_image = sandbox_image_map[docker_image]
         except KeyError as exc:
             raise ValueError(
@@ -723,6 +725,8 @@ def main(argv: list[str] | None = None) -> int:
                     git_sanitize_timeout=args.git_sanitize_timeout,
                     log_parser_source=log_parser_source,
                 )
+                if row is None:
+                    continue
                 handle.write(
                     json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n"
                 )
