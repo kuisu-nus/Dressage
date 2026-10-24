@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+IMAGE_TAG=nightly-dev-20261020a
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 REPO_ROOT="$(cd -- "${SCRIPT_DIR}/.." >/dev/null 2>&1 && pwd)"
 source "${SCRIPT_DIR}/image_tag.sh"
@@ -16,6 +17,8 @@ fi
 
 mount_args=(
   -v "${REPO_ROOT}:/root/Dressage"
+  -v "/eds-data/home/wangzhiyuan/:/eds-data/home/wangzhiyuan/"
+  -v "/eds-data/home/kuisu/01.data/03.model:/root/Dressage/models"
 )
 env_args=(
   -e "DRESSAGE_BLACKBOX_RUNNER_MODE=bwrap"
@@ -34,7 +37,8 @@ else
   echo "set HOST_CHECKPOINT_DIR or BASE_FOLDER to mount model/checkpoint files" >&2
 fi
 
-docker run --rm -it \
+docker run -it \
+  --name dressage-ivf \
   "${gpu_args[@]}" \
   --network host \
   --ipc host \

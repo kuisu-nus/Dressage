@@ -212,6 +212,7 @@ class E2BSandboxProvider:
             raise NotImplementedError("E2BSandboxProvider.run_command does not support stdin yet")
         commands = getattr(sandbox, "commands", None)
         run = getattr(commands, "run", None) if commands is not None else None
+        breakpoint()
         if run is None:
             raise RuntimeError("E2B sandbox object does not expose commands.run")
         result = await _maybe_await(_call_commands_run(run, cmd, cwd=cwd, env=env, timeout=timeout))

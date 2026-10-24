@@ -265,6 +265,7 @@ async def generate(
             instance_id=instance_id,
         )
         log_template = sample
+        # breakpoint()
         try:
             await _ARTIFACT_WRITER.write_segment_samples(
                 log_template,

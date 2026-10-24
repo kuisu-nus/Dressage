@@ -151,7 +151,7 @@ async def _fetch_agent_messages_b64(
     """Fetch conversation_history from BBS and return base64-encoded payload."""
     import base64
     import shlex
-
+    # breakpoint()
     bbs_port = os.environ.get("BBS_PORT", "")
     if bbs_port:
         url = f"http://127.0.0.1:{bbs_port}/v1/sessions/{session_id}?include_history=true"
@@ -240,7 +240,7 @@ async def generate(
     del sampling_params
     if evaluation:
         raise ValueError("blackbox_dispatch does not support evaluation mode")
-
+    # breakpoint()
     metadata = getattr(sample, "metadata", None)
     if not isinstance(metadata, dict):
         metadata = {}

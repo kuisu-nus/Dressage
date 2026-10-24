@@ -97,6 +97,11 @@ def build_template() -> object:
                 "DRESSAGE_BLACKBOX_SUPERVISOR_RUN_ID": "e2b-template",
                 "CUDA_VISIBLE_DEVICES": "",
                 "NVIDIA_VISIBLE_DEVICES": "void",
+                # OMNI model for judge evaluation (optional, but useful for testing).  The
+                "OMNI_CLAW_EVAL_ENABLE_JUDGE": "1",
+                "OMNI_CLAW_EVAL_JUDGE_MODEL": "deepseek-flash",
+                "OMNI_CLAW_EVAL_JUDGE_BASE_URL": "https://api.deepseek.com",
+                "OMNI_CLAW_EVAL_JUDGE_API_KEY":"sk-d3243bb4cc974e3daa39a6fbbea87747"
             }
         )
     )
@@ -114,8 +119,7 @@ def build_template() -> object:
             'ln -sf "$(command -v openclaw)" /usr/local/bin/openclaw'
         )
     template = (
-        template
-        .run_cmd(
+        template.run_cmd(
             "apt-get update && "
             "apt-get install -y --no-install-recommends bash ca-certificates curl patch && "
             "rm -rf /var/lib/apt/lists/*"
@@ -133,7 +137,7 @@ def build_template() -> object:
             "/home/blackbox/.local/bin/uv pip install "
             "--python /opt/dressage-bbs-venv/bin/python setuptools wheel && "
             "/home/blackbox/.local/bin/uv pip install --system --break-system-packages "
-            "--python \"$(command -v python3)\" "
+            '--python "$(command -v python3)" '
             "fastapi uvicorn pydantic httpx openai"
         )
         .copy(".", "/root/Dressage")
@@ -145,8 +149,10 @@ def build_template() -> object:
         )
         # Verify openclaw is reachable from PATH (it ships in the task image).
         .run_cmd(
-            "openclaw_resolved=\"$(command -v openclaw)\" && "
-            "ln -sf \"$openclaw_resolved\" /usr/local/bin/openclaw && "
+            "test -x /usr/bin/openclaw && "
+            "ln -sf /usr/bin/openclaw /usr/local/bin/openclaw"
+        )
+        .run_cmd(
             "test -x /usr/local/bin/openclaw || "
             "{ echo 'ERROR: openclaw not found in PATH'; exit 1; } && "
             "/usr/local/bin/openclaw --version"

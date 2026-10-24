@@ -241,7 +241,7 @@ class DressageDataSource(RolloutDataSourceWithBuffer):
                     ),
                 )
             )
-
+        # breakpoint()
         logger.info("DressageDataSource: loaded %d samples from %s", len(samples), path)
         return samples
 
@@ -284,7 +284,7 @@ class DressageDataSource(RolloutDataSourceWithBuffer):
         """Return num_samples prompt groups. Each group has n_samples_per_prompt clones."""
         buffer_samples = self._get_samples_from_buffer(num_samples)
         num_samples -= len(buffer_samples)
-
+        # breakpoint()
         if num_samples == 0:
             return buffer_samples
 

@@ -14,7 +14,14 @@ logger = logging.getLogger(__name__)
 REWARD_MARKER = "DRESSAGE_SWEGYM_REWARD_JSON="
 
 
+def _show_response(metadata: dict[str, Any]):
+    response = metadata["messages"][-1]["content"]
+    print(response)
+
+
 def _marker_payload(metadata: dict[str, Any]) -> dict[str, Any] | None:
+    # breakpoint()
+
     for record in metadata.get("execute_cmds", []):
         if (
             record.get("stage") != "after_agent"
@@ -47,6 +54,7 @@ def swegym_harness_marker_reward(
     """Return the official-harness binary outcome emitted by the sandbox hook."""
 
     del args, kwargs
+    # breakpoint()
     metadata = getattr(sample, "metadata", None)
     if not isinstance(metadata, dict):
         return 0.0

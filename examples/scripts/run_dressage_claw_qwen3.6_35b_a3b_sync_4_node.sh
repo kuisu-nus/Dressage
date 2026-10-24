@@ -274,7 +274,7 @@ PROXY_ARGS=(
    "${COMM_ARGS[@]}"
    "${TQ_PROXY_ARGS[@]}"
    --context-window "${CONTEXT_WINDOW}"
-   --default-max-tokens "${ROLLOUT_MAX_RESPONSE_LEN}"
+   --max-output-tokens "${ROLLOUT_MAX_RESPONSE_LEN}"
 )
 
 HF_CHECKPOINT="${HF_CHECKPOINT:-${MODEL_ROOT}/${MODEL_NAME}}"
@@ -368,7 +368,6 @@ SGLANG_ARGS=(
    --sglang-max-prefill-tokens 8192
    --sglang-max-running-requests 64
    --sglang-router-port "${SGLANG_ROUTER_PORT}"
-   --router-policy consistent_hashing
 )
 
 MISC_ARGS=(
