@@ -59,7 +59,6 @@ if netstat -tln 2>/dev/null | awk '{print $4}' | grep -qE "[:.]${RAY_PORT}\$"; t
   exit 1
 fi
 
-export WANDB_API_KEY="8dcf2fbd5ebb9660ff18edac681e71aaefd11228"
 export WANDB_MODE="online"
 export WANDB_KEY="8dcf2fbd5ebb9660ff18edac681e71aaefd11228"
 
@@ -67,7 +66,7 @@ export GLOO_SOCKET_IFNAME=bond0
 export TP_SOCKET_IFNAME=bond0
 export NCCL_SOCKET_IFNAME=bond0
 
-export RAY_DEBUG_POST_MORTEM=1     # 失败后进入 post-mortem pdb
+export RAY_DEBUG_POST_MORTEM=0     # 失败后进入 post-mortem pdb
 export RAY_PDB=0
 export USE_WANDB=1
 export DEBUG_ROLLOUT_ONLY=0

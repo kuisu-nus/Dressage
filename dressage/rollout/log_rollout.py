@@ -105,7 +105,7 @@ def log_rollout_data(
     metric rides through ``log_dict = {**(rollout_extra_metrics or {})}``
     in slime's ``_log_rollout_data``.
     """
-    breakpoint()
+    # breakpoint()
     _define_staleness_wandb_metrics(args)
 
     parent_traj_ids: list[str] = []

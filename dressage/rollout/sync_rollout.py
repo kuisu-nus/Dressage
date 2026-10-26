@@ -165,7 +165,7 @@ def generate_rollout_sync(
     flat = [sample for group in data for sample in group]
     metrics: dict[str, Any] = compute_multi_segment_metrics(flat)
     metrics.update(compute_prewarm_metrics(flat))
-    breakpoint()
+    # breakpoint()
     if RolloutFnTrainOutput is None:
         return data
     return RolloutFnTrainOutput(samples=data, metrics=metrics)
