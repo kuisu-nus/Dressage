@@ -75,6 +75,15 @@ def proxy_url() -> str:
 
 
 def proxy_public_url() -> str:
+    """URL a sandbox should use to reach the proxy.
+
+    Driver-side code keeps talking to ``DRESSAGE_PROXY_URL`` locally while the
+    agent inside the sandbox gets this address, which may be a DNAT'd/TEST-NET
+    address on the E2B host when the sandbox cannot route to this node's LAN IP.
+    """
+    value = os.environ.get("DRESSAGE_PROXY_PUBLIC_URL")
+    if value:
+        return value
     return proxy_url()
 
 

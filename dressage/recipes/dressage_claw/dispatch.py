@@ -8,7 +8,7 @@ import os
 import uuid
 from typing import Any
 
-from dressage.config import proxy_url
+from dressage.config import proxy_public_url
 from dressage.paddock.blackbox.execute_hooks import (
     execute_blackbox_cmds_for_stage,
     parse_blackbox_execute_cmds,
@@ -298,7 +298,7 @@ async def generate(
                 state,
                 instance_id=instance_id,
                 session_id=session_id,
-                router_url=proxy_url(),
+                router_url=proxy_public_url(),
                 blackbox_type=blackbox_type,
                 backend_options=backend_options,
                 system_prompt_file=metadata.get("system_prompt_file") or None,

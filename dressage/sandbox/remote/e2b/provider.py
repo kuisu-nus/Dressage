@@ -190,11 +190,18 @@ class E2BSandboxProvider:
     ) -> SandboxEndpoint:
         del service_name
         sandbox = _require_sandbox(lease)
-        host = await _call_get_host(sandbox, port)
-        url = str(host)
-        if not url.startswith(("http://", "https://")):
-            url = f"https://{url}"
-        return SandboxEndpoint(url=url.rstrip("/"), headers={})
+        host = str(await _call_get_host(sandbox, port))
+        if host.startswith(("http://", "https://")):
+            return SandboxEndpoint(url=host.rstrip("/"), headers={})
+        sandbox_url = os.environ.get("E2B_SANDBOX_URL", "").strip().rstrip("/")
+        if sandbox_url:
+            # Self-hosted E2B serves every sandbox port through a single
+            # client-proxy origin and picks the sandbox/port from the
+            # ``<port>-<sandbox_id>.<domain>`` Host header.  The SDK's
+            # get_host() only returns that hostname, which has no public DNS
+            # entry in a self-hosted install, so route through the proxy.
+            return SandboxEndpoint(url=sandbox_url, headers={"Host": host})
+        return SandboxEndpoint(url=f"https://{host}".rstrip("/"), headers={})
 
     async def run_command(
         self,
@@ -212,7 +219,7 @@ class E2BSandboxProvider:
             raise NotImplementedError("E2BSandboxProvider.run_command does not support stdin yet")
         commands = getattr(sandbox, "commands", None)
         run = getattr(commands, "run", None) if commands is not None else None
-        breakpoint()
+        # breakpoint()
         if run is None:
             raise RuntimeError("E2B sandbox object does not expose commands.run")
         result = await _maybe_await(_call_commands_run(run, cmd, cwd=cwd, env=env, timeout=timeout))
